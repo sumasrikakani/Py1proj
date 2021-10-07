@@ -1,0 +1,25 @@
+pipeline{
+//None parameter in the agent section means that no global agent will be allocated for the entire Pipelin' section
+//execution and that each stage directive must specify its own section
+   agent none
+   stages{
+        stage('Build'){
+            agent{
+                docker{
+                    //This parameter (of the agent sections parameter) downloads the python:2-alpine
+                    //docker image and runs this image as a container. The python container becomes
+                    //the agent that Jenkins uses to run the build stage of your pipeline project.agent
+                    image 'python:2-alpine'
+                }
+            }
+            steps{
+                 //This sh runs the python command to compile your application and
+                 //its calc library into byte code files, which are placed into the workspace directory
+                 sh 'python -m py_compile Py1proj/add2vals.py sources/calc.py'
+                 //this stash step save the python source code and compiled files from the sources
+                 //workspace directory for use in later stages
+                 stash(name: 'compiled-results', includes: 'Py1proj/*py*')
+            }
+        }
+   }
+}
